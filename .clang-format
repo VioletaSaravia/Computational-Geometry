@@ -1,0 +1,29 @@
+BasedOnStyle: Google
+PointerAlignment: Left
+ColumnLimit: 100
+
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ContinuationIndentWidth: 4
+
+AlignConsecutiveAssignments: true
+AlignConsecutiveDeclarations: true
+AlignAfterOpenBracket: Align
+AlignOperands: true
+AlignTrailingComments: true
+
+AllowShortIfStatementsOnASingleLine: false
+AlwaysBreakTemplateDeclarations: Yes
+BinPackArguments: false
+BinPackParameters: false
+PenaltyReturnTypeOnItsOwnLine: 1000
+
+Cpp11BracedListStyle: true  # Use C++11 braced list style
+AllowShortFunctionsOnASingleLine: InlineOnly
+AllowShortLoopsOnASingleLine: true
+
+ReflowComments: true
+SpacesBeforeTrailingComments: 2
+
+MaxEmptyLinesToKeep: 1

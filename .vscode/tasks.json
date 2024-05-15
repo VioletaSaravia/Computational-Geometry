@@ -1,0 +1,61 @@
+{
+    "tasks": [
+        {
+            "label": "Configure x86 Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S", ".",
+                "-B", "build-x86"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build x86 Project",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build", "build-x86"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": "Configure x86 Build"
+        },
+        {
+            "label": "Build Web Projects",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build-wasm"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": "Configure Web Project"
+        },
+        {
+            "label": "Configure Web Project",
+            "type": "shell",
+            "command": ".\\tools\\emsdk\\upstream\\emscripten\\emcmake",
+            "args": [
+                "cmake",
+                "-DPLATFORM=Web",
+                "-DGLFW_BUILD_WAYLAND=OFF",
+                "-DGLFW_BUILD_X11=OFF",
+                "-S",
+                ".",
+                "-B",
+                "build-wasm"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": []
+        }
+    ],
+    "version": "2.0.0"
+}
