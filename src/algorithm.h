@@ -119,3 +119,33 @@ class Array {
         return math::Max(max_gap, max - prev_max);
     }
 };
+
+enum CellState {
+    Dead,
+    Alive,
+};
+
+// TODO Cellular Automata GDExtension plugin
+// custom number of states, history, rules, etc etc.
+// Inherits from tilemap?
+struct ConwayBoard {
+    // TODO two copies of board for data-oriented?
+    // And if I add a time dimension to determine the tile to use? What's more data-oriented then?
+    CellState board[64][64]{}; 
+
+    ConwayBoard(Array<v2> initialLiving) : board{} {
+        // for (usize i = 0; i < 64; i++)
+        //     for (usize j = 0; j < 64; j++) board[i][j] = CellState::Dead;
+
+        for (usize i = 0; i < initialLiving.count; i++) 
+            board[(usize)initialLiving[i].x][(usize)initialLiving[i].y] = CellState::Alive;
+    }
+
+    void Update() {
+        for (usize i = 0; i < 64; i++) {
+            for (usize j = 0; j < 64; j++) {
+                // RULES HERE
+            }
+        }
+    }
+};
