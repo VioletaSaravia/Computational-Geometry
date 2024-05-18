@@ -185,25 +185,25 @@ Array<Edge> ConvexHull_ExtremeEdges(const Array<v2> &points) {
             if (memcmp(&points[i], &points[j], sizeof(v2)) == 0)
                 continue;
 
-            const Edge to_test    = Edge{points[i], points[j]};
-            bool       is_extreme = true;
+            const Edge toTest    = Edge{points[i], points[j]};
+            bool       isExtreme = true;
 
             for (usize k = 0; k < points.count; ++k) {
-                if (memcmp(&points[k], &to_test.p, sizeof(v2)) == 0)
+                if (memcmp(&points[k], &toTest.p, sizeof(v2)) == 0)
                     continue;
-                if (memcmp(&points[k], &to_test.q, sizeof(v2)) == 0)
+                if (memcmp(&points[k], &toTest.q, sizeof(v2)) == 0)
                     continue;
 
                 // TODO: tmb chequear si cloud[k] esta en la linea pq
 
-                if (vec2::IsLeft(points[k], to_test)) {
-                    is_extreme = false;
+                if (vec2::IsLeft(points[k], toTest)) {
+                    isExtreme = false;
                     break;
                 }
             }
 
-            if (is_extreme) {
-                result.Push(to_test);
+            if (isExtreme) {
+                result.Push(toTest);
 
                 // if ring is closed
                 if (memcmp(&result[count].q, &result[0].p, sizeof(v2)) == 0)
@@ -231,25 +231,25 @@ Array<Edge> ConvexHull_JarvisMarch(const Array<v2> &points) {
             continue;
 
         // TODO: optimizar copy
-        const Edge to_test    = Edge{points[i], points[j]};
-        bool       is_extreme = true;
+        const Edge toTest    = Edge{points[i], points[j]};
+        bool       isExtreme = true;
 
         for (usize k = 0; k < points.count; ++k) {
-            if (memcmp(&points[k], &to_test.p, sizeof(v2)) == 0)
+            if (memcmp(&points[k], &toTest.p, sizeof(v2)) == 0)
                 continue;
-            if (memcmp(&points[k], &to_test.q, sizeof(v2)) == 0)
+            if (memcmp(&points[k], &toTest.q, sizeof(v2)) == 0)
                 continue;
 
             // TODO: tmb chequear si cloud[k] esta en la linea pq
 
-            if (vec2::IsLeft(points[k], to_test)) {
-                is_extreme = false;
+            if (vec2::IsLeft(points[k], toTest)) {
+                isExtreme = false;
                 break;
             }
         }
 
-        if (is_extreme) {
-            result.Push(to_test);
+        if (isExtreme) {
+            result.Push(toTest);
             i = j;
             break;
         }
@@ -263,9 +263,9 @@ Array<Edge> ConvexHull_JarvisMarch(const Array<v2> &points) {
                 continue;
 
             // TODO: optimizar copy
-            const Edge to_test = Edge{points[i], points[j]};
+            const Edge toTest = Edge{points[i], points[j]};
 
-            f64 angle = result[result.count - 1].AngleTo(to_test);
+            f64 angle = result[result.count - 1].AngleTo(toTest);
             if (angle < 0)
                 angle += 2 * PI;  // ???
 
@@ -309,29 +309,29 @@ Array<Edge> ConvexHull_GrahamScan(const Array<v2> &points) {
                   return horizontal.AngleTo(Edge{first, a}) > horizontal.AngleTo(Edge{first, b});
               });
 
-    Array<v2> res_points(1 + points.count);
+    Array<v2> resPoints(1 + points.count);
 
-    res_points.Push(points[0]);
-    res_points.Push(points[1]);
+    resPoints.Push(points[0]);
+    resPoints.Push(points[1]);
 
     // Graham scan main loop
     usize i = 2;
     while (i < points.count) {
         if (vec2::IsLeft(
-                points[i], res_points[res_points.count - 2], res_points[res_points.count - 1])) {
-            res_points.Push(points[i]);
+                points[i], resPoints[resPoints.count - 2], resPoints[resPoints.count - 1])) {
+            resPoints.Push(points[i]);
             i++;
         } else {
-            res_points.count--;
+            resPoints.count--;
         }
     }
 
-    res_points.Push(points[0]);
+    resPoints.Push(points[0]);
 
-    Array<Edge> result(res_points.count);
+    Array<Edge> result(resPoints.count);
 
-    for (usize j = 0; j < res_points.count - 1; ++j) {
-        result.Push(Edge{res_points[j], res_points[j + 1]});
+    for (usize j = 0; j < resPoints.count - 1; ++j) {
+        result.Push(Edge{resPoints[j], resPoints[j + 1]});
     }
 
     return result;
