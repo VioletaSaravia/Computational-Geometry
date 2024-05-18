@@ -58,7 +58,7 @@ endif()
 
 # Project setup
 add_executable(${PROJECT_NAME} src/main.cpp)
-target_link_libraries(${PROJECT_NAME} raylib raygui rimgui)
+target_link_libraries(${PROJECT_NAME} raylib raygui)
 
 if (${PLATFORM} STREQUAL "Web")
     set_target_properties(${PROJECT_NAME} PROPERTIES SUFFIX ".html")

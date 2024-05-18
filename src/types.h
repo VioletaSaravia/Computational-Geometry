@@ -19,3 +19,9 @@ typedef Vector2 v2;
 typedef Vector3 v3;
 typedef Vector2 p2;
 typedef Vector3 p3;
+
+// TODO Why is this needed?
+#if defined(PLATFORM_WEB)
+#define INT_MAX 0x7fffffff
+#define INT_MIN (- 0x7fffffff) - 1
+#endif
