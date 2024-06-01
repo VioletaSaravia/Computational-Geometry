@@ -74,6 +74,13 @@
         "source_location": "cpp",
         "fstream": "cpp",
         "stdfloat": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "any": "cpp",
+        "barrier": "cpp",
+        "codecvt": "cpp",
+        "coroutine": "cpp",
+        "regex": "cpp",
+        "future": "cpp",
+        "valarray": "cpp"
     }
 }

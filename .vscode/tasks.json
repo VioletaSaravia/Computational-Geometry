@@ -60,6 +60,7 @@
         },
         {
             "label": "Start Python HTTP Server",
+            "isBackground": true,
             "type": "shell",
             "command": "python",
             "args": [
@@ -71,7 +72,17 @@
                 "cwd": "${workspaceFolder}/build/web"
             },
             "group": "none",
-            "problemMatcher": [],
+            "problemMatcher": {
+                "pattern": {
+                    // This is not needed but, required by the problemMatcher Object
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Serving HTTP on .*",
+                    "endsPattern": "Serving HTTP on .*"
+                }
+            },
             "dependsOn": "Build Web Project"
         }
     ],

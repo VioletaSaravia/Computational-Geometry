@@ -1,4 +1,10 @@
 #pragma once
+
+// TODO defines.h
+#ifndef DEFAULT_ARENA_SIZE
+#define DEFAULT_ARENA_SIZE 10000
+#endif
+
 #include <assert.h>
 
 #include <algorithm>
@@ -12,8 +18,8 @@
 struct Edge {
     v2 p, q;
 
-    f32 AngleTo(Edge l) const;
-    bool   Intersects(Edge l) const;
+    f32  AngleTo(Edge l) const;
+    bool Intersects(Edge l) const;
 };
 
 namespace vec2 {
@@ -170,9 +176,11 @@ Circle _EnclosingDisk(Array<v2> &P, usize i, Array<v2> R) {
 
 // Welzl's smallest enclosing disk algorithm
 // fails if two points are in the same place
-Circle EnclosingDisk(Array<v2> P) {
+static Arena EnclosingDiskArena(DEFAULT_ARENA_SIZE);
+Circle       EnclosingDisk(Array<v2> P) {
     // std::random_shuffle(P.begin(), P.end());
-    return _EnclosingDisk(P, 0, Array<v2>(P.size));
+    EnclosingDiskArena.Clear();
+    return _EnclosingDisk(P, 0, Array<v2>(P.size, &EnclosingDiskArena));
 }
 
 Array<Edge> ConvexHull_ExtremeEdges(const Array<v2> &points) {
@@ -288,7 +296,11 @@ Array<Edge> ConvexHull_JarvisMarch(const Array<v2> &points) {
 // O(n) graham scan
 // updatable convex hull / bounding box / bounding circle
 // TODO this needs profiling. Let's take Casey Muratori's class!
-Array<Edge> ConvexHull_GrahamScan(const Array<v2> &points) {
+
+static Arena convexHullArena(DEFAULT_ARENA_SIZE);
+Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &points) {
+    convexHullArena.Clear();
+
     v2 first{FLT_MAX, 0};
     for (usize i = 0; i < points.count; ++i) {
         if (points[i].x < first.x)
@@ -309,7 +321,7 @@ Array<Edge> ConvexHull_GrahamScan(const Array<v2> &points) {
                   return horizontal.AngleTo(Edge{first, a}) > horizontal.AngleTo(Edge{first, b});
               });
 
-    Array<v2> resPoints(1 + points.count);
+    Array<v2> resPoints(1 + points.count, &convexHullArena);
 
     resPoints.Push(points[0]);
     resPoints.Push(points[1]);
@@ -322,13 +334,13 @@ Array<Edge> ConvexHull_GrahamScan(const Array<v2> &points) {
             resPoints.Push(points[i]);
             i++;
         } else {
-            resPoints.count--;
+            resPoints.Pop();
         }
     }
 
     resPoints.Push(points[0]);
 
-    Array<Edge> result(resPoints.count);
+    Array<Edge> result(resPoints.count, &convexHullArena);
 
     for (usize j = 0; j < resPoints.count - 1; ++j) {
         result.Push(Edge{resPoints[j], resPoints[j + 1]});

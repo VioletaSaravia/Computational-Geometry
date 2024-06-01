@@ -19,19 +19,48 @@ T Max(const T& a, const T& b) {
 
 }  // namespace math
 
+class Arena {
+    u8*   buffer;
+    usize size;
+    usize count = 0;
+
+   public:
+    Arena(usize _size) : buffer(new u8[_size]), size(_size){};
+    Arena(const Arena&)            = delete;
+    Arena& operator=(const Arena&) = delete;
+
+    template <typename T>
+    T* Alloc(usize count = 1) {
+        T* result = (T*)&buffer[count];
+        this->count += sizeof(T) * count;
+
+        assert(this->count <= size);
+        return result;
+    }
+
+    void Clear() { count = 0; }
+};
+
 template <typename T>
 class Array {
-   public:
-    T* buffer;
+    Arena* arena;
 
+   public:
+    T*    buffer;  // FIXME Left public for std::sort
     usize size;
     usize count;
 
-    Array(usize _size)
-        : buffer(static_cast<T*>(malloc(sizeof(T) * _size))), size(_size), count(0){};
+    Array(usize _size, Arena* _arena = nullptr)
+        : arena(_arena ? _arena : new Arena(_size * sizeof(T))),
+          buffer(arena->Alloc<T>(_size)),
+          size(_size),
+          count(0){};
 
-    Array(usize _size, T fill)
-        : buffer(static_cast<T*>(malloc(sizeof(T) * _size))), size(_size), count(_size) {
+    Array(usize _size, T fill, Arena* _arena = nullptr)
+        : arena(_arena ? _arena : new Arena(_size * sizeof(T))),
+          buffer(arena->Alloc<T>(_size)),
+          size(_size),
+          count(_size) {
         for (usize i = 0; i < count; i++) {
             buffer[i] = fill;
         }
@@ -94,6 +123,7 @@ class Array {
         T min = Min();
         T gap = ceil((max - min) / (count - 1));
 
+        // TODO Arena allocate
         Array<T> min_bucket(count - 1, INT_MAX);
         Array<T> max_bucket(count - 1, INT_MIN);
 

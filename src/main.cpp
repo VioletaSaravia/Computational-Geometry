@@ -1,9 +1,12 @@
+#define DEFAULT_ARENA_SIZE 10000
+
 #include <raylib.h>
 #define RAYGUI_IMPLEMENTATION
 #include <raygui.h>
 
 #if defined(PLATFORM_WEB)
 #include <emscripten/emscripten.h>
+#include <emscripten/html5.h>
 #endif
 
 #include "algorithm.h"
@@ -17,15 +20,20 @@
 #define GLSL_VERSION 100
 #endif
 
+
 // ---------------- TESTING -------------------
 #include <format>
+#include <functional>
+#include <iostream>
 #include <random>
 
-Array<v2> GeneratePoints(const usize count) {
-    Array<v2> points(count);
+static Arena PointsArena(DEFAULT_ARENA_SIZE);
+Array<v2>    GeneratePoints(const usize count) {
+    PointsArena.Clear();
+    Array<v2> points(count, &PointsArena);
 
-    std::random_device                    rd;               // Obtain a random number from hardware
-    std::mt19937                          eng(rd());        // Seed the generator
+    std::random_device                    rd;         // Obtain a random number from hardware
+    std::mt19937                          eng(rd());  // Seed the generator
     std::uniform_real_distribution<float> distr(0.0, 1.0);  // Define the range
 
     for (usize i = 0; i < count; ++i) {
@@ -55,37 +63,38 @@ void DrawEdges(const Array<Edge>& extremes) {
     }
 }
 
-const usize NUM         = 20;
-Array<v2>   test_points = GeneratePoints(NUM);
-Array<Edge> extremes    = ConvexHull_GrahamScan(test_points);
+auto ConvexHull_Test = []() {
+    const usize NUM         = 20;
+    Array<v2>   test_points = GeneratePoints(NUM);
+    Array<Edge> extremes    = ConvexHull_GrahamScan(test_points);
 
-void ConvexHull_Test() {
-    if (GuiButton(Rectangle{10, 10, 100, 30}, "New points")) {
-        test_points = GeneratePoints(NUM);
-    }
-    extremes = ConvexHull_GrahamScan(test_points);
+    return [=]() mutable {
+        if (GuiButton(Rectangle{10, 10, 100, 30}, "New points")) {
+            test_points = GeneratePoints(NUM);
+        }
+        extremes = ConvexHull_GrahamScan(test_points);
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
-        v2 mousePos = GetMousePosition();
-        for (usize i = 0; i < test_points.count; i++) {
-            if (vec2::DistanceTo(mousePos, test_points[i]) <= 20) {
-                test_points[i] = mousePos;
-                break;
+        if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+            v2 mousePos = GetMousePosition();
+            for (usize i = 0; i < test_points.count; i++) {
+                if (vec2::DistanceTo(mousePos, test_points[i]) <= 20) {
+                    test_points[i] = mousePos;
+                    break;
+                }
             }
         }
-    }
 
-    DrawPoints(test_points);
-    DrawEdges(extremes);
-}
+        DrawPoints(test_points);
+        DrawEdges(extremes);
+    };
+}();
 // --------------------------------------------
 
 void Update();
 
-struct GameData {
+struct {
     Array<Model> models = Array<Model>(256);
-};
-auto data = GameData{};
+} data = {};
 
 Camera3D camera{};
 i32      main() {
@@ -102,10 +111,10 @@ i32      main() {
     camera.fovy       = 45.0f;                  // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;     // Camera projection type
 
-    auto litShader = LoadShader("/home/violeta/Dev/RaylibTesting/shaders/default.vert",
-                                "/home/violeta/Dev/RaylibTesting/shaders/default_lit.frag");
+    // auto litShader = LoadShader("/home/violeta/Dev/RaylibTesting/shaders/default.vert",
+    //                             "/home/violeta/Dev/RaylibTesting/shaders/default_lit.frag");
 
-    while (!IsShaderReady(litShader));
+    // while (!IsShaderReady(litShader));
 
 #if defined(PLATFORM_WEB)
     emscripten_set_main_loop(Update, 0, 1);
@@ -122,8 +131,11 @@ i32      main() {
 auto Fullscreen = [] {
     bool fullscreen = false;
 
-    return [&] {
+    return [=]() mutable {
         if (GuiButton(Rectangle{10, 50, 100, 30}, "Fullscreen")) {
+#if defined(PLATFORM_WEB)
+// emscripten_request_fullscreen("???", false);
+#endif
             ToggleBorderlessWindowed();
 
             if (!fullscreen) {
