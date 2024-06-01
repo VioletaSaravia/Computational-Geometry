@@ -1,4 +1,4 @@
-# RaylibTesting
+# Computational Geometry
 
 ## WASM Build
 
