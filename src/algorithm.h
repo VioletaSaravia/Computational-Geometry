@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cassert>
+#include <climits>
 
 #include "types.h"
 
@@ -141,35 +142,33 @@ struct ConwayBoard {
     }
 
     void Update() {
-        for (usize i = 1; i < 63; i++) for (usize j = 1; j < 63; j++) {
-            usize near{};
+        for (usize i = 1; i < 63; i++)
+            for (usize j = 1; j < 63; j++) {
+                usize near{};
 
-            for (usize k = i - 1; k < i + 2; k++) 
-                for (usize f = j - 1; f < j + 2; f++)
-                    near += board[k][f] == CellState::Alive ? 1 : 0;
+                for (usize k = i - 1; k < i + 2; k++)
+                    for (usize f = j - 1; f < j + 2; f++)
+                        near += board[k][f] == CellState::Alive ? 1 : 0;
 
-            // RULES HERE
-            switch (near) {
-                case 0:
-                    break;
+                // RULES HERE
+                switch (near) {
+                    case 0:
+                        break;
 
-                case 1:
-                    break;
+                    case 1:
+                        break;
 
-                case 2:
-                    break;
+                    case 2:
+                        break;
 
-                case 3:
-                    break;
+                    case 3:
+                        break;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
-        }
-        
     }
 
-    void Draw() {
-
-    }
+    void Draw() {}
 };

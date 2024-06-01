@@ -27,6 +27,7 @@ if (NOT raylib_FOUND)
   if (NOT raylib_POPULATED)
     set(FETCHCONTENT_QUIET NO)
     FetchContent_Populate(raylib)
+    # set(USE_WAYLAND ON CACHE BOOL "" FORCE) # Add the compile option for Wayland
     set(BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
     add_subdirectory(${raylib_SOURCE_DIR} ${raylib_BINARY_DIR})
   endif()

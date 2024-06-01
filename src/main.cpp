@@ -41,7 +41,7 @@ void DrawPoints(const Array<v2>& points) {
     for (usize i = 0; i < points.count; ++i) {
         DrawCircle(points[i].x, points[i].y, 5, BLACK);
 
-        auto display = std::format("{:.0f}, {:.0f} [{}]", points[i].x, points[i].y, i);
+        std::string display = std::format("{:.0f}, {:.0f} [{}]", points[i].x, points[i].y, i);
         DrawText(display.c_str(), points[i].x + 5, points[i].y + 5, 10, BLACK);
 
         Circle welzl = EnclosingDisk(points);
@@ -92,8 +92,8 @@ i32      main() {
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(settings.CurrentResolution.x, settings.CurrentResolution.y, "Raylib Test");
 
-    data.models.Push(LoadModel("D:\\Dev\\RaylibTesting\\assets\\cube\\default_cube.obj"));
-    auto cubeTexture = LoadTexture("D:\\Dev\\RaylibTesting\\assets\\cube\\container.jpg");
+    data.models.Push(LoadModel("/home/violeta/Dev/RaylibTesting/assets/cube/default_cube.obj"));
+    auto cubeTexture = LoadTexture("/home/violeta/Dev/RaylibTesting/assets/cube/container.jpg");
     data.models[0].materials[0].maps[MATERIAL_MAP_ALBEDO].texture = cubeTexture;
 
     camera.position   = {10.0f, 10.0f, 10.0f};  // Camera position
@@ -102,8 +102,8 @@ i32      main() {
     camera.fovy       = 45.0f;                  // Camera field-of-view Y
     camera.projection = CAMERA_PERSPECTIVE;     // Camera projection type
 
-    auto litShader = LoadShader("D:/Dev/RaylibTesting/shaders/default.vert",
-                                "D:/Dev/RaylibTesting/shaders/default_lit.frag");
+    auto litShader = LoadShader("/home/violeta/Dev/RaylibTesting/shaders/default.vert",
+                                "/home/violeta/Dev/RaylibTesting/shaders/default_lit.frag");
 
     while (!IsShaderReady(litShader));
 
@@ -118,29 +118,33 @@ i32      main() {
     return 0;
 }
 
-bool Fullscreen = false;
-void FullscreenToggle() {
-    if (GuiButton(Rectangle{10, 50, 100, 30}, "Fullscreen")) {
-        ToggleBorderlessWindowed();
+// Toggles fullscreen on/off.
+auto Fullscreen = [] {
+    bool fullscreen = false;
 
-        if (!Fullscreen) {
-            i32 display                  = GetCurrentMonitor();
-            settings.CurrentResolution.x = GetMonitorWidth(display);
-            settings.CurrentResolution.y = GetMonitorHeight(display);
-        } else {
-            settings.CurrentResolution = settings.DefaultResolution;
+    return [&] {
+        if (GuiButton(Rectangle{10, 50, 100, 30}, "Fullscreen")) {
+            ToggleBorderlessWindowed();
+
+            if (!fullscreen) {
+                i32 display                  = GetCurrentMonitor();
+                settings.CurrentResolution.x = GetMonitorWidth(display);
+                settings.CurrentResolution.y = GetMonitorHeight(display);
+            } else {
+                settings.CurrentResolution = settings.DefaultResolution;
+            }
+
+            SetWindowSize(settings.CurrentResolution.x, settings.CurrentResolution.y);
+            fullscreen = !fullscreen;
         }
-
-        SetWindowSize(settings.CurrentResolution.x, settings.CurrentResolution.y);
-        Fullscreen = !Fullscreen;
-    }
-}
+    };
+}();
 
 void Update() {
     UpdateCamera(&camera, CAMERA_FREE);
     BeginDrawing();
     {
-        FullscreenToggle();
+        Fullscreen();
         ClearBackground(RAYWHITE);
 
         BeginMode3D(camera);
