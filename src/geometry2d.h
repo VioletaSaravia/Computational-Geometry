@@ -179,7 +179,6 @@ Circle _EnclosingDisk(Array<v2> &P, usize i, Array<v2> R) {
 static Arena EnclosingDiskArena(DEFAULT_ARENA_SIZE);
 Circle       EnclosingDisk(Array<v2> P) {
     // std::random_shuffle(P.begin(), P.end());
-    EnclosingDiskArena.Clear();
     return _EnclosingDisk(P, 0, Array<v2>(P.size, &EnclosingDiskArena));
 }
 
@@ -299,8 +298,6 @@ Array<Edge> ConvexHull_JarvisMarch(const Array<v2> &points) {
 
 static Arena convexHullArena(DEFAULT_ARENA_SIZE);
 Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &points) {
-    convexHullArena.Clear();
-
     v2 first{FLT_MAX, 0};
     for (usize i = 0; i < points.count; ++i) {
         if (points[i].x < first.x)

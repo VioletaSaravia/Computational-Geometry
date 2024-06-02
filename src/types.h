@@ -20,8 +20,40 @@ typedef Vector3 v3;
 typedef Vector2 p2;
 typedef Vector3 p3;
 
+v2 operator-(v2 const& lhs, v2 const& rhs) {
+    return v2{lhs.x - rhs.x, lhs.y - rhs.y};
+}
+
+v2 operator+(v2 const& lhs, v2 const& rhs) {
+    return v2{lhs.x + rhs.x, lhs.y + rhs.y};
+}
+
+v2 operator*(f32 const& lhs, v2 const& rhs) {
+    return v2{lhs * rhs.x, lhs * rhs.y};
+}
+
+v2 operator/(v2 const& lhs, f32 const& rhs) {
+    return v2{lhs.x / rhs, lhs.y / rhs};
+}
+
+v3 operator-(v3 const& lhs, v3 const& rhs) {
+    return v3{lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z};
+}
+
+v3 operator+(v3 const& lhs, v3 const& rhs) {
+    return v3{lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z};
+}
+
+v3 operator*(f32 const& lhs, v3 const& rhs) {
+    return v3{lhs * rhs.x, lhs * rhs.y, lhs * rhs.z};
+}
+
+v3 operator/(v3 const& lhs, f32 const& rhs) {
+    return v3{lhs.x / rhs, lhs.y / rhs, lhs.z / rhs};
+}
+
 // TODO Why is this needed?
 #if defined(PLATFORM_WEB)
 #define INT_MAX 0x7fffffff
-#define INT_MIN (- 0x7fffffff) - 1
+#define INT_MIN (-0x7fffffff) - 1
 #endif
