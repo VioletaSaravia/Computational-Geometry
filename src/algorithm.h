@@ -32,8 +32,8 @@ class Arena {
                 case Throw:
                     throw "Arena overflow";
 
-                // default:
-                //     std::unreachable();
+                    // default:
+                    //     std::unreachable();
             }
 
         return reinterpret_cast<T*>(&buffer[this->count]);
@@ -47,7 +47,7 @@ class Array {
     Arena* arena;
 
    public:
-    T*    buffer;  // FIXME Left public for std::sort
+    T*    buffer;  // FIXME Left public for std::sort?
     usize size;
     usize count;
 
@@ -66,6 +66,18 @@ class Array {
             buffer[i] = fill;
         }
     };
+
+    Array(const Array<T>& other)
+        : arena{other.arena},
+          buffer{arena->Alloc<T>(other.size)},
+          size{other.size},
+          count{other.count} {
+        // Is this correct?
+        memcpy(buffer, other.buffer, count * sizeof(T));
+    }
+
+    Array<T>& operator=(const Array<T>&) = default;
+    Array<T>& operator=(Array<T>&)       = default;
 
     void Push(const T& val) {
         assert(count + 1 <= size);
@@ -91,7 +103,7 @@ class Array {
 
     void Clear() { count = 0; }
 
-    T Max() {
+    T Max() const {
         assert(count > 0);
 
         T result = buffer[0];
@@ -103,7 +115,7 @@ class Array {
         return result;
     }
 
-    T Min() {
+    T Min() const {
         assert(count > 0);
 
         T result = buffer[0];

@@ -297,7 +297,9 @@ Array<Edge> ConvexHull_JarvisMarch(const Array<v2> &points) {
 // TODO this needs profiling. Let's take Casey Muratori's class!
 
 static Arena convexHullArena(DEFAULT_ARENA_SIZE);
-Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &points) {
+Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &basePoints) {
+    Array<v2> points = basePoints;
+
     v2 first{FLT_MAX, 0};
     for (usize i = 0; i < points.count; ++i) {
         if (points[i].x < first.x)
@@ -337,6 +339,7 @@ Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &points) {
 
     resPoints.Push(points[0]);
 
+    // TODO Meh. Can be removed.
     Array<Edge> result(resPoints.count, &convexHullArena);
 
     for (usize j = 0; j < resPoints.count - 1; ++j) {
