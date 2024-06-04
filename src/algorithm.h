@@ -31,6 +31,9 @@ class Arena {
 
                 case Throw:
                     throw "Arena overflow";
+
+                // default:
+                //     std::unreachable();
             }
 
         return reinterpret_cast<T*>(&buffer[this->count]);
