@@ -49,19 +49,16 @@ struct {
                                              : IsKeyDown(KEY_DOWN) ? -5.0f
                                                                    : 0});
 
-        // Camera rotation controls
         if (IsKeyDown(KEY_A))
             camera2D.rotation--;
         else if (IsKeyDown(KEY_S))
             camera2D.rotation++;
 
-        // Limit camera2D rotation to 80 degrees (-40 to 40)
         if (camera2D.rotation > 40)
             camera2D.rotation = 40;
         else if (camera2D.rotation < -40)
             camera2D.rotation = -40;
 
-        // camera2D zoom controls
         camera2D.zoom = dampedZoom.By((float)GetMouseWheelMove() * 0.15f);
 
         if (camera2D.zoom > 3.0f)
@@ -69,7 +66,6 @@ struct {
         else if (camera2D.zoom < 0.1f)
             camera2D.zoom = 0.1f;
 
-        // camera2D reset (zoom and rotation)
         if (IsKeyPressed(KEY_R)) {
             camera2D.zoom     = dampedZoom(1.0f);
             camera2D.rotation = 0.0f;

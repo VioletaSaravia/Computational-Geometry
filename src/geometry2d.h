@@ -131,7 +131,8 @@ struct Circle {
     Circle(v2 xy, f32 r) : x(xy.x), y(xy.y), r(r) {}
 };
 
-Circle _EnclosingDisk(Array<v2> &R) {
+static Arena EnclosingDiskArena(DEFAULT_ARENA_SIZE);
+Circle       _EnclosingDisk(Array<v2> const &R) {
     switch (R.count) {
         case 0:
             return Circle(0, 0, -1);
@@ -176,8 +177,7 @@ Circle _EnclosingDisk(Array<v2> &P, usize i, Array<v2> R) {
 
 // Welzl's smallest enclosing disk algorithm
 // fails if two points are in the same place
-static Arena EnclosingDiskArena(DEFAULT_ARENA_SIZE);
-Circle       EnclosingDisk(Array<v2> P) {
+Circle EnclosingDisk(Array<v2> P) {
     // std::random_shuffle(P.begin(), P.end());
     return _EnclosingDisk(P, 0, Array<v2>(P.size, &EnclosingDiskArena));
 }
@@ -295,10 +295,9 @@ Array<Edge> ConvexHull_JarvisMarch(const Array<v2> &points) {
 // O(n) graham scan
 // updatable convex hull / bounding box / bounding circle
 // TODO this needs profiling. Let's take Casey Muratori's class!
-
 static Arena convexHullArena(DEFAULT_ARENA_SIZE);
-Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &basePoints) {
-    Array<v2> points = basePoints;
+Array<Edge>  ConvexHull_GrahamScan(const Array<v2> &points) {
+    // Array<v2> points = basePoints;
 
     v2 first{FLT_MAX, 0};
     for (usize i = 0; i < points.count; ++i) {

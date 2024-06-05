@@ -9,6 +9,9 @@
 #include <emscripten/html5.h>
 #endif
 
+#include <chrono>
+#include <filesystem>
+
 #include "algorithm.h"
 #include "damped.h"
 #include "data.h"
@@ -23,9 +26,53 @@
 #define GLSL_VERSION 100
 #endif
 
+namespace fs = std::filesystem;
+namespace ch = std::chrono;
+
+struct ShaderLoader {
+    const std::string basePath{"/home/violeta/Dev/RaylibTesting/shaders/fragment"};
+
+    std::vector<Shader>      shaders;
+    std::vector<std::string> files;
+
+    std::vector<fs::file_time_type> lastModified;
+    ch::duration<i32, std::milli>   watchDelay = ch::milliseconds(100);
+
+    ShaderLoader() {}
+
+    void Init() {
+        usize i = 0;
+        for (auto const &file : fs::directory_iterator(basePath)) {
+            files.push_back(file.path());
+            shaders.push_back(LoadShader(NULL, file.path().c_str()));
+            lastModified.push_back(file.last_write_time());
+            i++;
+        }
+    }
+
+    void Update() {
+        usize i = 0;
+        for (auto &file : fs::directory_iterator(basePath)) {
+            auto currentModified = file.last_write_time();
+            if (currentModified != lastModified[i]) {
+                std::cout << std::format("INFO: SHADER: [ID {}] Reloading modified file: {}\n",
+                                         shaders[i].id,
+                                         file.path().c_str());
+
+                UnloadShader(shaders[i]);
+                shaders[i]      = LoadShader(NULL, files[i].c_str());
+                lastModified[i] = currentModified;
+            }
+            i++;
+        }
+    }
+};
+static ShaderLoader shaderLoader{};
+
 void Update() {
     camera3D.Update();
     camera2D.Update();
+    shaderLoader.Update();
 
     BeginDrawing();
     {
@@ -49,10 +96,8 @@ i32 main() {
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(settings.CurrentResolution.x, settings.CurrentResolution.y, "Raylib Test");
 
-    data.models.Push(LoadModel("/home/violeta/Dev/RaylibTesting/assets/cube/default_cube.obj"));
-    auto cubeTexture = LoadTexture("/home/violeta/Dev/RaylibTesting/assets/cube/container.jpg");
-    data.models[0].materials[0].maps[MATERIAL_MAP_ALBEDO].texture = cubeTexture;
-
+    shaderLoader.Init();
+    
     tileset = LoadTexture("/home/violeta/Dev/RaylibTesting/assets/tilesets/microbe-2.png");
 
 #if defined(PLATFORM_WEB)

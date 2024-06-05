@@ -68,7 +68,7 @@ struct ItemGrabber {
             v2 mousePos = GetMousePosition();
             for (usize i = 0; i < items->count; i++) {
                 if (vec2::DistanceTo(mousePos, (*items)[i]) <= 20) {
-                    held = &(*items)[i];
+                    held  = &(*items)[i];
                     *held = mousePos;
                     return;
                 }
@@ -91,12 +91,12 @@ struct ConvexHull_Test {
     ItemGrabber grabber     = ItemGrabber(&test_points);
 
     void operator()() {
-        grabber();
+        // grabber();
 
         if (GuiButton(Rectangle{10, 10, 100, 30}, "New points")) {
             test_points = GeneratePoints(NUM);
         }
-        
+
         extremes = ConvexHull_GrahamScan(test_points);
 
         DrawPoints(test_points);

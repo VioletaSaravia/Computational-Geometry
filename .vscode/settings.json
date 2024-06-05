@@ -81,6 +81,9 @@
         "coroutine": "cpp",
         "regex": "cpp",
         "future": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "__verbose_abort": "cpp",
+        "*.m": "cpp",
+        "filesystem": "cpp"
     }
 }

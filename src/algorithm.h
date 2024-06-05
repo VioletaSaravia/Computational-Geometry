@@ -18,7 +18,8 @@ class Arena {
     explicit Arena(usize _size) : buffer(new u8[_size]), size(_size){};
     Arena(const Arena&)            = delete;
     Arena& operator=(const Arena&) = delete;
-    ~Arena() { delete[] buffer; }
+    // Multiple deletes if multiple objects are using/holding the same arena
+    // ~Arena() { delete[] buffer; }
 
     template <typename T>
     T* Alloc(usize count = 1) {
@@ -66,15 +67,6 @@ class Array {
             buffer[i] = fill;
         }
     };
-
-    Array(const Array<T>& other)
-        : arena{other.arena},
-          buffer{arena->Alloc<T>(other.size)},
-          size{other.size},
-          count{other.count} {
-        // Is this correct?
-        memcpy(buffer, other.buffer, count * sizeof(T));
-    }
 
     Array<T>& operator=(const Array<T>&) = default;
     Array<T>& operator=(Array<T>&)       = default;
