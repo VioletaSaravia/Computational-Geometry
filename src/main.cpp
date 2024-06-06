@@ -29,22 +29,27 @@
 namespace fs = std::filesystem;
 namespace ch = std::chrono;
 
-struct ShaderLoader {
-    const std::string basePath{"/home/violeta/Dev/RaylibTesting/shaders/fragment"};
+template <typename T>
+struct FileWatcher {
+    const std::string basePath{};
 
-    std::vector<Shader>      shaders;
-    std::vector<std::string> files;
+    std::vector<T>           loadedFiles;
+    std::vector<std::string> filePaths;
 
-    std::vector<fs::file_time_type> lastModified;
-    ch::duration<i32, std::milli>   watchDelay = ch::milliseconds(100);
+    std::vector<fs::file_time_type>               lastModified;
+    std::function<T(fs::directory_entry const &)> loader;
+    std::function<void(T &)>                      unloader;
 
-    ShaderLoader() {}
+    FileWatcher(std::string                                   _basePath,
+                std::function<T(fs::directory_entry const &)> _loader,
+                std::function<void(T &)>                      _unloader)
+        : basePath{_basePath}, loader{_loader}, unloader{_unloader} {}
 
     void Init() {
         usize i = 0;
         for (auto const &file : fs::directory_iterator(basePath)) {
-            files.push_back(file.path());
-            shaders.push_back(LoadShader(NULL, file.path().c_str()));
+            filePaths.push_back(file.path());
+            loadedFiles.push_back(loader(file));
             lastModified.push_back(file.last_write_time());
             i++;
         }
@@ -55,24 +60,33 @@ struct ShaderLoader {
         for (auto &file : fs::directory_iterator(basePath)) {
             auto currentModified = file.last_write_time();
             if (currentModified != lastModified[i]) {
-                std::cout << std::format("INFO: SHADER: [ID {}] Reloading modified file: {}\n",
-                                         shaders[i].id,
+                std::cout << std::format("INFO: Reloading modified file: {}\n",
                                          file.path().c_str());
 
-                UnloadShader(shaders[i]);
-                shaders[i]      = LoadShader(NULL, files[i].c_str());
+                unloader(loadedFiles[i]);
+                loadedFiles[i]  = loader(file);
                 lastModified[i] = currentModified;
             }
             i++;
         }
     }
 };
-static ShaderLoader shaderLoader{};
+
+static FileWatcher<Shader> shaderWatcher{
+    "/home/violeta/Dev/RaylibTesting/shaders/fragment",
+    [](fs::directory_entry const &file) { return LoadShader(NULL, file.path().c_str()); },
+    [](Shader &shader) { UnloadShader(shader); }};
+
+static FileWatcher<i32> mockWatcher{
+    "/home/violeta/Dev/RaylibTesting/assets/tilesets/",
+    []([[maybe_unused]] fs::directory_entry const &file) { return 0; },
+    []([[maybe_unused]] i32 &shader) { return; }};
 
 void Update() {
     camera3D.Update();
     camera2D.Update();
-    shaderLoader.Update();
+    shaderWatcher.Update();
+    mockWatcher.Update();
 
     BeginDrawing();
     {
@@ -96,8 +110,9 @@ i32 main() {
     SetConfigFlags(FLAG_MSAA_4X_HINT);
     InitWindow(settings.CurrentResolution.x, settings.CurrentResolution.y, "Raylib Test");
 
-    shaderLoader.Init();
-    
+    shaderWatcher.Init();
+    mockWatcher.Init();
+
     tileset = LoadTexture("/home/violeta/Dev/RaylibTesting/assets/tilesets/microbe-2.png");
 
 #if defined(PLATFORM_WEB)

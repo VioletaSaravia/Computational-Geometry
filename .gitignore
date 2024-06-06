@@ -36,3 +36,5 @@ build*/
 CMakeCache.txt
 
 .cache/
+zig-cache/
+zig-out/

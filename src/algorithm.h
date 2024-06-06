@@ -43,6 +43,9 @@ class Arena {
     inline void Clear() { count = 0; }
 };
 
+// TODO
+class PackedStringArray {};
+
 template <typename T>
 class Array {
     Arena* arena;
