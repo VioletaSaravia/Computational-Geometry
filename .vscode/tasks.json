@@ -1,0 +1,90 @@
+{
+    "tasks": [
+        {
+            "label": "Configure linux Build",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "-S",
+                ".",
+                "-B",
+                "build/linux"
+            ],
+            "group": {
+                "kind": "build"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build linux Project",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/linux"
+            ],
+            "group": {
+                "kind": "build",
+            },
+            "problemMatcher": [],
+            "dependsOn": "Configure linux Build"
+        },
+        {
+            "label": "Configure Web Project",
+            "type": "shell",
+            "command": "./tools/emsdk/upstream/emscripten/emcmake",
+            "args": [
+                "cmake",
+                "-DPLATFORM=Web",
+                "-DGLFW_BUILD_WAYLAND=OFF",
+                "-DGLFW_BUILD_X11=OFF",
+                "-S",
+                ".",
+                "-B",
+                "build/web"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Web Project",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "build/web"
+            ],
+            "group": "build",
+            "problemMatcher": [],
+            "dependsOn": "Configure Web Project"
+        },
+        {
+            "label": "Start Python HTTP Server",
+            "isBackground": true,
+            "type": "shell",
+            "command": "python",
+            "args": [
+                "-m",
+                "http.server",
+                "8000"
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/build/web"
+            },
+            "group": "none",
+            "problemMatcher": {
+                "pattern": {
+                    // This is not needed but, required by the problemMatcher Object
+                    "regexp": "^$"
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "Serving HTTP on .*",
+                    "endsPattern": "Serving HTTP on .*"
+                }
+            },
+            "dependsOn": "Build Web Project"
+        }
+    ],
+    "version": "2.0.0"
+}
