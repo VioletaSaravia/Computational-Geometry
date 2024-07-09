@@ -9,14 +9,11 @@
 #define GLSL_VERSION 100
 #endif
 
-#include "testing.hpp"
 #include "textmode.hpp"
 
 void Update() {
     static Array<Scene*> Scenes{
-        new ConvexHullTesting,
-        new RayTesting,
-        new TileEditor("D:\\Dev\\EngineTest\\assets\\tilesets\\MRMOTEXT-EX.png", 8, 32)};
+        new TileEditor("D:\\Dev\\Motley\\assets\\tilesets\\MRMOTEXT-EX.png", 8, 32)};
     static usize current = 0;
 
     if (IsKeyPressed(KEY_SPACE)) {
@@ -27,6 +24,11 @@ void Update() {
 
     scene->Compute();
     camera2D.Update();
+
+    if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)) {
+        printf_s("INFO: ENGINE: Saving screen as image\n");
+        TakeScreenshot("image.png");
+    }
 
     BeginDrawing();
     {
@@ -40,11 +42,6 @@ void Update() {
         FullscreenToggle();
     }
     EndDrawing();
-
-    if (IsKeyDown(KEY_LEFT_CONTROL) && IsKeyPressed(KEY_S)) {
-        printf_s("INFO: ENGINE: Saving screen as image\n");
-        TakeScreenshot("image.png");
-    }
 }
 
 int main() {
@@ -52,19 +49,9 @@ int main() {
     InitWindow(screenWidth, screenHeight, "EngineTest");
     SetTargetFPS(60);
 
-    auto test = new ConvexHullTesting;
-    test->PerPointsTest();
-    SaveAsCsv("benchmarks/convexhull_02.csv",
-              {gs_data, jm_data, ee_data},
-              "Graham Scan,Jarvis March,Extreme Edges");
-    abort();
-
     while (!WindowShouldClose()) {
         Update();
     }
 
-    SaveAsCsv("benchmarks/convexhull_01.csv",
-              {gs_data, jm_data, ee_data},
-              "Graham Scan,Jarvis March,Extreme Edges");
     CloseWindow();
 }

@@ -33,6 +33,20 @@ typedef Vector3 v3;
 typedef Vector2 p2;
 typedef Vector3 p3;
 
+struct Vector2i {
+    i32 x, y;
+};
+
+struct Vector2u {
+    u32 x, y;
+};
+
+typedef Vector2i v2i;
+typedef Vector2i p2i;
+
+typedef Vector2u v2u;
+typedef Vector2u p2u;
+
 v2 operator-(v2 const& lhs, v2 const& rhs) {
     return v2{lhs.x - rhs.x, lhs.y - rhs.y};
 }
@@ -121,6 +135,7 @@ class Array {
     T*    buffer;  // FIXME Left public for std::sort?
     usize size;
     usize count;
+    usize stride = 1;
 
     explicit Array(std::initializer_list<T> list, Arena* _arena = nullptr)
         : arena(_arena ? _arena : new Arena(list.size() * sizeof(T))),
@@ -136,7 +151,7 @@ class Array {
           size(_size),
           count(0) {};
 
-    explicit Array(usize _size, T fill, Arena* _arena = nullptr)
+    explicit Array(usize _size, const T& fill, Arena* _arena = nullptr)
         : arena(_arena ? _arena : new Arena(_size * sizeof(T))),
           buffer(arena->Alloc<T>(_size)),
           size(_size),
@@ -169,6 +184,16 @@ class Array {
     const T& operator[](const usize idx) const {
         assert(idx < count);
         return buffer[idx];
+    }
+
+    T& operator[](const v2i coords) {
+        assert(coords.x + coords.y * stride < count);
+        return buffer[(usize)(coords.x + coords.y * stride)];
+    }
+
+    const T& operator[](const v2i coords) const {
+        assert(coords.x + coords.y * stride < count);
+        return buffer[(usize)(coords.x + coords.y * stride)];
     }
 
     void Clear() { count = 0; }
@@ -656,8 +681,9 @@ Array<Edge>  ConvexHull_GrahamScan(const Array<v2>& points) {
 
     v2 first{FLT_MAX, 0};
     for (usize i = 0; i < points.count; ++i) {
-        if (points[i].x < first.x)
+        if (points[i].x < first.x) {
             first = points[i];
+        }
     }
 
     // Ordenar puntos por angulo polar respecto de first

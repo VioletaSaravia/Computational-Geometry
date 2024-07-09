@@ -74,6 +74,27 @@ struct ConvexHullTesting : public Scene {
         }
     }
 
+    void perPointsTest() {
+        for (usize i = 2; i < 999; i++) {
+            std::cout << "PROCESSING TEST " << i << "\n";
+            auto inc_points = generatePoints(i);
+            u64  st         = __rdtsc();
+            extremes        = ConvexHull_GrahamScan(inc_points);
+            st              = __rdtsc() - st;
+            gs_data.Push(st);
+
+            st = __rdtsc();
+            ConvexHull_JarvisMarch(inc_points);
+            st = __rdtsc() - st;
+            jm_data.Push(st);
+
+            st = __rdtsc();
+            ConvexHull_ExtremeEdges(inc_points);
+            st = __rdtsc() - st;
+            ee_data.Push(st);
+        }
+    }
+
    public:
     ConvexHullTesting()
         : test_points{generatePoints(NUM)},
@@ -112,24 +133,17 @@ struct ConvexHullTesting : public Scene {
         DrawFPS(10, 100);
     }
 
-    void PerPointsTest() {
-        for (usize i = 2; i < 999; i++) {
-            std::cout << "PROCESSING TEST " << i << "\n";
-            auto inc_points = generatePoints(i);
-            u64  st          = __rdtsc();
-            extremes         = ConvexHull_GrahamScan(inc_points);
-            st               = __rdtsc() - st;
-            gs_data.Push(st);
+    void RunTest1() {
+        perPointsTest();
+        SaveAsCsv("benchmarks/convexhull_02.csv",
+                  {gs_data, jm_data, ee_data},
+                  "Graham Scan,Jarvis March,Extreme Edges");
+        abort();
+    }
 
-            st = __rdtsc();
-            ConvexHull_JarvisMarch(inc_points);
-            st = __rdtsc() - st;
-            jm_data.Push(st);
-
-            st = __rdtsc();
-            ConvexHull_ExtremeEdges(inc_points);
-            st = __rdtsc() - st;
-            ee_data.Push(st);
-        }
+    void RunTest2() {
+        SaveAsCsv("benchmarks/convexhull_01.csv",
+                  {gs_data, jm_data, ee_data},
+                  "Graham Scan,Jarvis March,Extreme Edges");
     }
 };
