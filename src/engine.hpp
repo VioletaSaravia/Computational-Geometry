@@ -6,46 +6,76 @@
 
 #include "algorithm.hpp"
 
-struct MyCamera2D {
-    Camera2D    camera2D{};
+struct SmoothCamera2D {
+    Camera2D camera{};
+    // TODO These should be clamped as well.
     Damped<v2>  dampedOffset{};
-    Damped<f32> dampedZoom{};
+    Damped<f32> dampedZoom{1.0f, false};
+    Damped<f32> dampedRotation{};
 
-    operator Camera2D() const { return camera2D; }
+    v2  offsetClamp[2]   = {{FLT_MIN, FLT_MAX}, {FLT_MIN, FLT_MAX}};
+    f32 rotationClamp[2] = {-40, 40};
+    f32 zoomClamp[2]     = {0.001f, 30.0f};
+
+    operator Camera2D() const { return camera; }
 
     void Update() {
-        // TODO Notice how there's such a thing as a freezing damper vs one with inertia.
+        camera.rotation = dampedRotation.Set();
 
-        camera2D.offset = dampedOffset.By(v2{IsKeyDown(KEY_RIGHT)  ? -5.0f
-                                             : IsKeyDown(KEY_LEFT) ? 5.0f
-                                                                   : 0,
-                                             IsKeyDown(KEY_UP)     ? 5.0f
-                                             : IsKeyDown(KEY_DOWN) ? -5.0f
-                                                                   : 0});
+        MiddleMouseMovementAndZoom();
 
-        if (IsKeyDown(KEY_A))
-            camera2D.rotation--;
-        else if (IsKeyDown(KEY_S))
-            camera2D.rotation++;
-
-        if (camera2D.rotation > 40)
-            camera2D.rotation = 40;
-        else if (camera2D.rotation < -40)
-            camera2D.rotation = -40;
-
-        camera2D.zoom = dampedZoom.By((float)GetMouseWheelMove() * 0.15f);
-
-        if (camera2D.zoom > 3.0f)
-            camera2D.zoom = 3.0f;
-        else if (camera2D.zoom < 0.1f)
-            camera2D.zoom = 0.1f;
-
-        if (IsKeyPressed(KEY_R)) {
-            camera2D.zoom     = dampedZoom(1.0f);
-            camera2D.rotation = 0.0f;
-        }
+        Clamp();
     }
-} camera2D{};
+
+    void Clamp() {
+        if (camera.rotation > rotationClamp[1])
+            camera.rotation = rotationClamp[1];
+        else if (camera.rotation < rotationClamp[0])
+            camera.rotation = rotationClamp[0];
+
+        if (camera.zoom > zoomClamp[1])
+            camera.zoom = zoomClamp[1];
+        else if (camera.zoom < zoomClamp[0])
+            camera.zoom = zoomClamp[0];
+
+        // if (camera.offset.x > offsetClamp[1].x)
+        //     camera.offset.x = offsetClamp[1].x;
+        // else if (camera.offset.x < offsetClamp[0].x)
+        //     camera.offset.x = offsetClamp[0].x;
+
+        // if (camera.offset.y > offsetClamp[1].y)
+        //     camera.offset.y = offsetClamp[1].y;
+        // else if (camera.offset.y < offsetClamp[0].y)
+        //     camera.offset.y = offsetClamp[0].y;
+    }
+
+    void MiddleMouseMovementAndZoom() {
+        camera.zoom = dampedZoom.By((float)GetMouseWheelMove() * 0.15f);
+
+        static f32 buttonHeld{};
+        if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
+            buttonHeld += GetFrameTime();
+        }
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE) && buttonHeld < 0.200f) {
+            camera.zoom     = dampedZoom.Set(1.0f);
+            camera.rotation = dampedRotation.Set(0.0f);
+            buttonHeld      = 0;
+        }
+
+        if (IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE)) {
+            buttonHeld = 0;
+        }
+
+        camera.offset = dampedOffset.By(
+            IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) && buttonHeld >= 0.200f ? GetMouseDelta()
+                                                                           : v2{});
+    }
+
+    v2 Reproject(const v2& vector) {
+        return (vector + camera.target - camera.offset) / camera.zoom;
+    }
+} camera{};
 
 static u32 screenWidth  = 800;
 static u32 screenHeight = 450;
@@ -99,7 +129,7 @@ struct ItemGrabber {
             std::cout << "DOWN\n";
 
             v2 mousePos = GetMousePosition();
-            *held       = newHeld(mousePos);
+            *held       = newHeld.Set(mousePos);
         }
     }
 };

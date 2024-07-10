@@ -258,6 +258,12 @@ class Array {
     }
 };
 
+template <typename T, u8 D>
+class ArrayDim : public Array<T> {
+   public:
+    u8 strides[D];
+};
+
 // Types that satisfy Dampenable may be used as type parameters for Damped<> without causing
 // errors, though it may not make sense to do so (e.g. Damped<bool> satisfies this constraint, even
 // though a damped bool is rather meaningless).
@@ -269,6 +275,7 @@ concept Dampenable = requires(T const& value, f32 const& scalar) {
     { value / scalar } -> std::convertible_to<T>;
 };
 
+// TODO A pool of damped values?
 template <Dampenable T>
 class Damped {
     bool enabled = true;
@@ -292,8 +299,22 @@ class Damped {
     }
 
    public:
+    T value() { return y; }
+
     explicit Damped(const f32 _f = 1, const f32 _z = 1, const f32 _r = 0)
         : k1(_z / (PI * _f)),
+          k2(1 / powf(2 * PI * _f, 2)),
+          k3(_r * _z / (2 * PI * _f)),
+          f(_f),
+          z(_z),
+          r(_r) {}
+
+    // TODO Better interface. Maybe v3{} for parameters.
+    explicit Damped(
+        const T _target, bool _started, const f32 _f = 1, const f32 _z = 1, const f32 _r = 0)
+        : started(_started),
+          target(_target),
+          k1(_z / (PI * _f)),
           k2(1 / powf(2 * PI * _f, 2)),
           k3(_r * _z / (2 * PI * _f)),
           f(_f),
@@ -306,14 +327,14 @@ class Damped {
     // Computes a new damped value tending towards the previous target + offset.
     T By(const T offset) {
         target = target + offset;
-        return (*this)();
+        return Set(target);
     }
 
-    // Computes a new damped value tending towards the previous target.
-    T operator()() { return (*this)(target); }
+    // Computes a new damped value tending towards the existing target.
+    T Set() { return Set(target); }
 
-    // Computes a new damped value tending towards the new target.
-    T operator()(const T newTarget) {
+    // Computes a new damped value tending towards a new target.
+    T Set(const T newTarget) {
         if (!started)
             return start(newTarget);
 
