@@ -13,12 +13,8 @@
 
 void Update() {
     static Array<Scene*> Scenes{
-        new TileEditor("D:\\Dev\\Motley\\assets\\tilesets\\MRMOTEXT-EX.png", 8, 32, v2{40, 20}),
-        new TileEditor("D:\\Dev\\Motley\\assets\\tilesets\\MRMOTEXT-x3.png",
-                       24,
-                       32,
-                       v2{(f32)GetScreenWidth() / 24, (f32)GetScreenHeight() / 24}),
-        new TileEditor("D:\\Dev\\Motley\\assets\\tilesets\\microbe-2.png", 6, 16, v2{64, 64})};
+        new MainMenu(),
+        new TileEditor("D:\\Dev\\Motley\\assets\\tilesets\\MRMOTEXT-EX.png", 8, 32, v2{40, 20})};
     static usize current = 0;
 
     if (IsKeyPressed(KEY_SPACE)) {
@@ -28,18 +24,16 @@ void Update() {
     Scene* scene = Scenes[current];
 
     scene->Compute();
-    camera.Update();
 
     BeginDrawing();
     {
         ClearBackground(RAYWHITE);
 
-        BeginMode2D(camera);
+        BeginMode2D(scene->camera);
         scene->Draw2D();
         EndMode2D();
 
         scene->DrawUI();
-        FullscreenToggle();
     }
     EndDrawing();
 }

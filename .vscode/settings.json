@@ -71,7 +71,8 @@
         "forward_list": "cpp",
         "unordered_set": "cpp",
         "fstream": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "raygui.h": "c"
     },
     "C_Cpp.errorSquiggles": "enabled"
 }

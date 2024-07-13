@@ -6,8 +6,19 @@
 
 #include "algorithm.hpp"
 
-struct SmoothCamera2D {
-    Camera2D camera{};
+struct BaseCamera2D : public Camera2D {
+    v2 Reproject(const v2& vector) { return (vector + target - offset) / zoom; }
+
+    virtual void Update() {};
+};
+
+struct PixelCamera2D : public BaseCamera2D {
+    PixelCamera2D() {};
+
+    void Update() final {}
+};
+
+struct SmoothCamera2D : public BaseCamera2D {
     // TODO These should be clamped as well.
     Damped<v2>  dampedOffset{};
     Damped<f32> dampedZoom{1.0f, false};
@@ -17,10 +28,8 @@ struct SmoothCamera2D {
     f32 rotationClamp[2] = {-40, 40};
     f32 zoomClamp[2]     = {0.001f, 30.0f};
 
-    operator Camera2D() const { return camera; }
-
-    void Update() {
-        camera.rotation = dampedRotation.Set();
+    void Update() final {
+        rotation = dampedRotation.Set();
 
         MiddleMouseMovementAndZoom();
 
@@ -28,29 +37,29 @@ struct SmoothCamera2D {
     }
 
     void Clamp() {
-        if (camera.rotation > rotationClamp[1])
-            camera.rotation = rotationClamp[1];
-        else if (camera.rotation < rotationClamp[0])
-            camera.rotation = rotationClamp[0];
+        if (rotation > rotationClamp[1])
+            rotation = rotationClamp[1];
+        else if (rotation < rotationClamp[0])
+            rotation = rotationClamp[0];
 
-        if (camera.zoom > zoomClamp[1])
-            camera.zoom = zoomClamp[1];
-        else if (camera.zoom < zoomClamp[0])
-            camera.zoom = zoomClamp[0];
+        if (zoom > zoomClamp[1])
+            zoom = zoomClamp[1];
+        else if (zoom < zoomClamp[0])
+            zoom = zoomClamp[0];
 
-        // if (camera.offset.x > offsetClamp[1].x)
-        //     camera.offset.x = offsetClamp[1].x;
-        // else if (camera.offset.x < offsetClamp[0].x)
-        //     camera.offset.x = offsetClamp[0].x;
+        // if (offset.x > offsetClamp[1].x)
+        //     offset.x = offsetClamp[1].x;
+        // else if (offset.x < offsetClamp[0].x)
+        //     offset.x = offsetClamp[0].x;
 
-        // if (camera.offset.y > offsetClamp[1].y)
-        //     camera.offset.y = offsetClamp[1].y;
-        // else if (camera.offset.y < offsetClamp[0].y)
-        //     camera.offset.y = offsetClamp[0].y;
+        // if (offset.y > offsetClamp[1].y)
+        //     offset.y = offsetClamp[1].y;
+        // else if (offset.y < offsetClamp[0].y)
+        //     offset.y = offsetClamp[0].y;
     }
 
     void MiddleMouseMovementAndZoom() {
-        camera.zoom = dampedZoom.By((float)GetMouseWheelMove() * 0.15f);
+        zoom = dampedZoom.By((float)GetMouseWheelMove() * 0.15f);
 
         static f32 buttonHeld{};
         if (IsMouseButtonDown(MOUSE_BUTTON_MIDDLE)) {
@@ -58,27 +67,23 @@ struct SmoothCamera2D {
         }
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE) && buttonHeld < 0.200f) {
-            camera.zoom     = dampedZoom.Set(1.0f);
-            camera.rotation = dampedRotation.Set(0.0f);
-            buttonHeld      = 0;
+            zoom       = dampedZoom.Set(1.0f);
+            rotation   = dampedRotation.Set(0.0f);
+            buttonHeld = 0;
         }
 
         if (IsMouseButtonReleased(MOUSE_BUTTON_MIDDLE)) {
             buttonHeld = 0;
         }
 
-        camera.offset = dampedOffset.By(
-            IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) && buttonHeld >= 0.200f ? GetMouseDelta()
-                                                                           : v2{});
+        offset = dampedOffset.By(IsMouseButtonDown(MOUSE_BUTTON_MIDDLE) && buttonHeld >= 0.200f
+                                     ? GetMouseDelta()
+                                     : v2{});
     }
+};
 
-    v2 Reproject(const v2& vector) {
-        return (vector + camera.target - camera.offset) / camera.zoom;
-    }
-} camera{};
-
-static u32 screenWidth  = 800;
-static u32 screenHeight = 450;
+static u32 screenWidth  = 1024;
+static u32 screenHeight = 768;
 void       FullscreenToggle() {
     static bool fullscreen = false;
 
@@ -90,8 +95,8 @@ void       FullscreenToggle() {
             screenWidth  = GetMonitorWidth(display);
             screenHeight = GetMonitorHeight(display);
         } else {
-            screenWidth  = 800;
-            screenHeight = 450;
+            screenWidth  = 1024;
+            screenHeight = 768;
         }
 
         SetWindowSize(screenWidth, screenHeight);
@@ -136,6 +141,7 @@ struct ItemGrabber {
 
 struct Scene {
     Scene() {}
+    BaseCamera2D camera{};
 
     virtual void Compute() {}
 
