@@ -1,0 +1,16 @@
+#
+# rgl layout text file (v4.0) - raygui layout file generated using rGuiLayout
+#
+# Number of controls:     5
+#
+# Ref. window:    r <x> <y> <width> <height>
+# Anchor info:    a <id> <name> <posx> <posy> <enabled>
+# Control info:   c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+r 0 0 -1 -1
+a 001 anchor01 279 135 1
+c 000 4 TitleLabel -8 40 120 24 1 Motley v0.1
+c 001 4 CreditsLabel -64 240 184 24 1 By Violeta Saravia - @violeta_xyz
+c 002 5 NewBtn -40 88 120 24 1 New Project
+c 003 5 OpenBtn -40 136 120 24 1 Open Project
+c 004 5 ExitBtn -40 184 120 24 1 Exit

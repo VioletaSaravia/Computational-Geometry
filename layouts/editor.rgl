@@ -1,0 +1,21 @@
+#
+# rgl layout text file (v4.0) - raygui layout file generated using rGuiLayout
+#
+# Number of controls:     9
+#
+# Ref. window:    r <x> <y> <width> <height>
+# Anchor info:    a <id> <name> <posx> <posy> <enabled>
+# Control info:   c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+r 0 40 -1 -1
+a 001 anchor01 32 96 1
+a 002 anchor02 27 581 1
+c 000 1 Charset 0 0 128 224 1 Charset
+c 001 5 ExportBtn 0 -40 128 24 1 Export
+c 002 15 SelectedTile 0 240 128 24 1 
+c 003 22 ColorFore 0 280 104 48 1 
+c 004 22 ColorBack 0 344 104 48 1 
+c 005 5 SaveBtn 0 -72 128 24 1 Save
+c 006 5 NewBtn 0 9 56 32 2 New
+c 007 5 ExitBtn 72 8 56 32 2 Exit
+c 008 3 EditorWindow 180 23 801 603 0 
