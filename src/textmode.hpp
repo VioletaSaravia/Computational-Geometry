@@ -115,10 +115,14 @@ class TileEditor : public Scene {
     }
 
     void drawSelected() {
-        v2 mousePosInCanvas = camera.Reproject(GetMousePosition());
+        // v2 mousePosInCanvas = camera.Reproject(GetMousePosition());
+        v2 mousePos = GetMousePosition();
+        if (!vec2::IsInRectangle(mousePos, layoutRecs[EDITOR]))
+            return;
+
         drawTile(selected,
-                 v2{(f32)((u32)mousePosInCanvas.x - (u32)mousePosInCanvas.x % (u32)tileSize),
-                    (f32)((u32)mousePosInCanvas.y - (u32)mousePosInCanvas.y % (u32)tileSize)},
+                 v2{(f32)((u32)mousePos.x - (u32)mousePos.x % (u32)tileSize),
+                    (f32)((u32)mousePos.y - (u32)mousePos.y % (u32)tileSize)},
                  selectedRotation);
     }
 
@@ -257,7 +261,6 @@ class TileEditor : public Scene {
         // }
 
         // drawMap();
-        drawSelected();
 
         // static bool showGrid = false;
         // if (IsKeyPressed(KEY_G)) {
@@ -297,6 +300,8 @@ class TileEditor : public Scene {
             ExitBtn();
         }
         GuiPanel(layoutRecs[EDITOR], "");
+
+        drawSelected();
     }
 
     void Compute() final { camera.Update(); }
