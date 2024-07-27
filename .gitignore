@@ -34,3 +34,7 @@
 # Build files
 build/
 .cache/
+
+# Visual Studio files
+.vs/
+out/

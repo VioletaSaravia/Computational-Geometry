@@ -16,7 +16,7 @@ class TileEditor : public Scene {
     void NewBtn() {};
     void ExitBtn() {
         CloseWindow();
-        abort();
+        exit(0);
     };
 
     i32         charsetScroll = 0;
@@ -313,7 +313,7 @@ class MainMenu : public Scene {
     void OpenBtn() {};
     void ExitBtn() {
         CloseWindow();
-        abort();
+        exit(0);
     };
 
     const char *TitleLabelText   = "Motley v0.1";
