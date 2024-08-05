@@ -11,9 +11,9 @@ class TileEditor : public Scene {
 
    private:
     // GUI
-    void ExportBtn() {};
-    void SaveBtn() {};
-    void NewBtn() {};
+    void ExportBtn(){};
+    void SaveBtn(){};
+    void NewBtn(){};
     void ExitBtn() {
         CloseWindow();
         exit(0);
@@ -309,8 +309,8 @@ class TileEditor : public Scene {
 
 class MainMenu : public Scene {
    private:
-    void NewBtn() {};
-    void OpenBtn() {};
+    void NewBtn(){};
+    void OpenBtn(){};
     void ExitBtn() {
         CloseWindow();
         exit(0);
